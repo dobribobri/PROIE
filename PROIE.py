@@ -5,11 +5,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-class PROIE():
+class PROIE:
 
     def __init__(self):
         #####
-        pass
+        self.in_img_c = None
+        self.in_img_g = None
 
     # PRIVATE METHODS
 
@@ -88,10 +89,17 @@ class PROIE():
         point_2 = np.array([self.landmarks_selected_align["x"]
                             [1], self.landmarks_selected_align["y"][1]])
 
-        self.ux = point_1[0]
-        self.uy = point_1[1] + (point_2-point_1)[0]//3
-        self.lx = point_2[0]
-        self.ly = point_2[1] + 4*(point_2-point_1)[0]//3
+        # self.ux = point_1[0]
+        # self.uy = point_1[1] + (point_2-point_1)[0]//3
+        # self.lx = point_2[0]
+        # self.ly = point_2[1] + 4*(point_2-point_1)[0]//3
+
+        self.ux = point_1[0] - int(point_1[0] * 0.18)
+        self.uy = point_1[1] + (point_2 - point_1)[0] // 5
+        self.lx = point_2[0] + int(point_2[0] * 0.14)
+        self.ly = point_2[1] + int(4.4 * (point_2 - point_1)[0] // 3)
+
+        print(self.ux, self.uy, self.lx, self.ly)
 
         self.roi_zone_img = cv2.cvtColor(self.align_img, cv2.COLOR_GRAY2BGR)
         cv2.rectangle(self.roi_zone_img, (self.lx, self.ly),
@@ -101,11 +109,11 @@ class PROIE():
 
     # PUBLIC METHODS
 
-    def extract_roi(self, path_in_img, rotate=False):
+    def extract_roi(self, path_in_img, rotate_90_clockwise_times=0):
         #####
         self.in_img_c = cv2.imread(path_in_img)
 
-        if(rotate):
+        for _ in range(rotate_90_clockwise_times):
             self.in_img_c = cv2.rotate(self.in_img_c, cv2.ROTATE_90_CLOCKWISE)
 
         if len(self.in_img_c.shape) == 3:
