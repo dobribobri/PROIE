@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-
+from typing import Union
 from enum import Enum
 import cv2
 import matplotlib.pyplot as plt
@@ -116,9 +116,14 @@ class PROIE:
 
     # PUBLIC METHODS
 
-    def extract_roi(self, path_in_img: str, rotate_90_clockwise_n_times: int = 0, mode: Mode = Mode.VENTRAL):
-        #####
-        self.in_img_c = cv2.imread(path_in_img)
+    def extract_roi(self, path_in_img: Union[str, np.ndarray], rotate_90_clockwise_n_times: int = 0,
+                    mode: Mode = Mode.VENTRAL):
+        if isinstance(path_in_img, str):
+            self.in_img_c = cv2.imread(path_in_img)
+        elif isinstance(path_in_img, np.ndarray):
+            self.in_img_c = path_in_img
+        else:
+            raise 'path_in_img should be \'str\' or \'numpy.ndarray\' object'
 
         for _ in range(rotate_90_clockwise_n_times):
             self.in_img_c = cv2.rotate(self.in_img_c, cv2.ROTATE_90_CLOCKWISE)
