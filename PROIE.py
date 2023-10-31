@@ -7,8 +7,9 @@ import numpy as np
 
 
 class Mode(Enum):
-    VENTRAL = 'Ventral'
-    DORSAL = 'Dorsal'
+    VENTRAL = 'Ventral (default)'
+    DORSAL_LEFT = 'Dorsal left hand'
+    DORSAL_RIGHT = 'Dorsal right hand'
 
 
 class PROIE:
@@ -100,11 +101,16 @@ class PROIE:
             self.uy = point_1[1] + (point_2-point_1)[0]//3
             self.lx = point_2[0]
             self.ly = point_2[1] + 4 * (point_2-point_1)[0]//3
-        else:  # mode == Mode.DORSAL
-            self.ux = point_1[0] - int(point_1[0] * 0.18)
+        elif mode == Mode.DORSAL_LEFT:
+            self.ux = point_1[0] - int(point_1[0] * 0.15)
             self.uy = point_1[1] + (point_2 - point_1)[0] // 5
-            self.lx = point_2[0] + int(point_2[0] * 0.14)
-            self.ly = point_2[1] + int(4.4 * (point_2 - point_1)[0] // 3)
+            self.lx = point_2[0] + int(point_2[0] * 0.1)
+            self.ly = point_2[1] + int(4 * (point_2 - point_1)[0] // 3)
+        else:  # mode == Mode.DORSAL_RIGHT
+            self.ux = point_1[0] - int(point_1[0] * 0.1)
+            self.uy = point_1[1] + (point_2 - point_1)[0] // 5
+            self.lx = point_2[0] + int(point_2[0] * 0.15)
+            self.ly = point_2[1] + int(4 * (point_2 - point_1)[0] // 3)
 
         # print(self.ux, self.uy, self.lx, self.ly)
 
