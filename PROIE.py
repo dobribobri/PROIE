@@ -67,7 +67,7 @@ class PROIE():
         theta = np.arctan2((self.landmarks_selected["y"][1] - self.landmarks_selected["y"][0]), (
             self.landmarks_selected["x"][1] - self.landmarks_selected["x"][0]))*180/np.pi
         R = cv2.getRotationMatrix2D(
-            (self.landmarks_selected["x"][1], self.landmarks_selected["y"][1]), theta, 1)
+            (int(self.landmarks_selected["x"][1]), int(self.landmarks_selected["y"][1])), theta, 1)
         self.align_img = cv2.warpAffine(self.in_img_g, R, (w, h))
 
         point_1 = [self.landmarks_selected["x"]
@@ -75,8 +75,8 @@ class PROIE():
         point_2 = [self.landmarks_selected["x"]
                    [1], self.landmarks_selected["y"][1]]
 
-        point_1 = (R[:, :2] @ point_1 + R[:, -1]).astype(np.int)
-        point_2 = (R[:, :2] @ point_2 + R[:, -1]).astype(np.int)
+        point_1 = (R[:, :2] @ point_1 + R[:, -1]).astype(int)
+        point_2 = (R[:, :2] @ point_2 + R[:, -1]).astype(int)
 
         self.landmarks_selected_align = {
             "x": [point_1[0], point_2[0]], "y": [point_1[1], point_2[1]]}
