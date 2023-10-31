@@ -4,7 +4,7 @@ from enum import Enum
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.interpolate import splprep, splev
+# from scipy.interpolate import splprep, splev
 
 
 class Mode(Enum):
