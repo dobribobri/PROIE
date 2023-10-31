@@ -1,8 +1,14 @@
 # -*- coding: UTF-8 -*-
 
+from enum import Enum
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+class Mode(Enum):
+    VENTRAL = 'Ventral'
+    DORSAL = 'Dorsal'
 
 
 class PROIE:
@@ -82,24 +88,25 @@ class PROIE:
         self.landmarks_selected_align = {
             "x": [point_1[0], point_2[0]], "y": [point_1[1], point_2[1]]}
 
-    def _roi_extract(self):
+    def _roi_extract(self, mode: Mode = Mode.VENTRAL):
         #####
         point_1 = np.array([self.landmarks_selected_align["x"]
                             [0], self.landmarks_selected_align["y"][0]])
         point_2 = np.array([self.landmarks_selected_align["x"]
                             [1], self.landmarks_selected_align["y"][1]])
 
-        # self.ux = point_1[0]
-        # self.uy = point_1[1] + (point_2-point_1)[0]//3
-        # self.lx = point_2[0]
-        # self.ly = point_2[1] + 4*(point_2-point_1)[0]//3
+        if mode == Mode.VENTRAL:
+            self.ux = point_1[0]
+            self.uy = point_1[1] + (point_2-point_1)[0]//3
+            self.lx = point_2[0]
+            self.ly = point_2[1] + 4 * (point_2-point_1)[0]//3
+        else:  # mode == Mode.DORSAL
+            self.ux = point_1[0] - int(point_1[0] * 0.18)
+            self.uy = point_1[1] + (point_2 - point_1)[0] // 5
+            self.lx = point_2[0] + int(point_2[0] * 0.14)
+            self.ly = point_2[1] + int(4.4 * (point_2 - point_1)[0] // 3)
 
-        self.ux = point_1[0] - int(point_1[0] * 0.18)
-        self.uy = point_1[1] + (point_2 - point_1)[0] // 5
-        self.lx = point_2[0] + int(point_2[0] * 0.14)
-        self.ly = point_2[1] + int(4.4 * (point_2 - point_1)[0] // 3)
-
-        print(self.ux, self.uy, self.lx, self.ly)
+        # print(self.ux, self.uy, self.lx, self.ly)
 
         self.roi_zone_img = cv2.cvtColor(self.align_img, cv2.COLOR_GRAY2BGR)
         cv2.rectangle(self.roi_zone_img, (self.lx, self.ly),
@@ -109,11 +116,11 @@ class PROIE:
 
     # PUBLIC METHODS
 
-    def extract_roi(self, path_in_img, rotate_90_clockwise_times=0):
+    def extract_roi(self, path_in_img: str, rotate_90_clockwise_n_times: int = 0, mode: Mode = Mode.VENTRAL):
         #####
         self.in_img_c = cv2.imread(path_in_img)
 
-        for _ in range(rotate_90_clockwise_times):
+        for _ in range(rotate_90_clockwise_n_times):
             self.in_img_c = cv2.rotate(self.in_img_c, cv2.ROTATE_90_CLOCKWISE)
 
         if len(self.in_img_c.shape) == 3:
@@ -126,7 +133,7 @@ class PROIE:
         self._landmarks()
         self._landmarks_select()
         self._alignement()
-        self._roi_extract()
+        self._roi_extract(mode=mode)
 
     def save(self, path_out_img):
         #####
