@@ -4,10 +4,12 @@ from enum import Enum
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.interpolate import splprep, splev
 
 
 class Mode(Enum):
     VENTRAL = 'Ventral (default)'
+    DORSAL = 'Dorsal'
     DORSAL_LEFT = 'Dorsal left hand'
     DORSAL_RIGHT = 'Dorsal right hand'
 
@@ -16,8 +18,7 @@ class PROIE:
 
     def __init__(self):
         #####
-        self.in_img_c = None
-        self.in_img_g = None
+        self.in_img_c, self.in_img_g = None, None
 
     # PRIVATE METHODS
 
@@ -30,11 +31,24 @@ class PROIE:
     def _contours(self):
         #####
         self.contours, _ = cv2.findContours(
-            self.thresh_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-        self.contours = self.contours[0]
+            self.thresh_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+        lengths = [len(_) for _ in self.contours]
+        contours = [_ for _ in self.contours if len(_) == max(lengths)]
+        self.contours = contours[0]
+
         self.contour_img = self.in_img_c.copy()
         self.contour_img = cv2.drawContours(
             self.contour_img, [self.contours], 0, (255, 0, 0), 2)
+
+        # N_INTERP = 10000
+        # x, y = np.array(self.contours)[:, 0, 0], np.array(self.contours)[:, 0, 1]
+        # # noinspection PyTupleAssignmentBalance
+        # tck, u = splprep([x, y], u=None, s=0.0, per=0, k=2)
+        # u_new = np.linspace(u.min(), u.max(), N_INTERP)
+        # x_new, y_new = splev(u_new, tck, der=0)
+        # contours = np.moveaxis(np.asarray([list(zip(x_new, y_new))]), 0, 1)
+        # self.contours = contours
 
     def _landmarks(self):
         #####
@@ -98,18 +112,23 @@ class PROIE:
 
         if mode == Mode.VENTRAL:
             self.ux = point_1[0]
-            self.uy = point_1[1] + (point_2-point_1)[0]//3
+            self.uy = point_1[1] + (point_2-point_1)[0] // 3
             self.lx = point_2[0]
-            self.ly = point_2[1] + 4 * (point_2-point_1)[0]//3
+            self.ly = point_2[1] + 4 * (point_2-point_1)[0] // 3
         elif mode == Mode.DORSAL_LEFT:
             self.ux = point_1[0] - int(point_1[0] * 0.15)
             self.uy = point_1[1] + (point_2 - point_1)[0] // 5
-            self.lx = point_2[0] + int(point_2[0] * 0.1)
+            self.lx = point_2[0] + int(point_2[0] * 0.05)
             self.ly = point_2[1] + int(4 * (point_2 - point_1)[0] // 3)
-        else:  # mode == Mode.DORSAL_RIGHT
-            self.ux = point_1[0] - int(point_1[0] * 0.1)
+        elif mode == Mode.DORSAL_RIGHT:
+            self.ux = point_1[0] - int(point_1[0] * 0.05)
             self.uy = point_1[1] + (point_2 - point_1)[0] // 5
             self.lx = point_2[0] + int(point_2[0] * 0.15)
+            self.ly = point_2[1] + int(4 * (point_2 - point_1)[0] // 3)
+        else:  # mode == Mode.DORSAL
+            self.ux = point_1[0] - int(point_1[0] * 0.1)
+            self.uy = point_1[1] + (point_2 - point_1)[0] // 5
+            self.lx = point_2[0] + int(point_2[0] * 0.1)
             self.ly = point_2[1] + int(4 * (point_2 - point_1)[0] // 3)
 
         # print(self.ux, self.uy, self.lx, self.ly)

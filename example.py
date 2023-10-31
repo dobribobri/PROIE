@@ -1,14 +1,12 @@
 # -*- coding: UTF-8 -*-
-
+import os
 from PROIE import *
 
 
-def example_1():
-    path_in_img = "resources/palmprint.jpg"
+def example(path: str, n: int, mode: Mode):
     proie = PROIE()
-    proie.extract_roi(path_in_img, rotate_90_clockwise_n_times=1)
+    proie.extract_roi(path, rotate_90_clockwise_n_times=n, mode=mode)
     proie.show_result()
-    proie.save("resources/palmprint_roi.jpg")
 
 
 def example_2():
@@ -20,14 +18,21 @@ def example_2():
 
 
 def example_3():
-    # path_in_img = "resources/person_004_db1_R2.tif"   # raises error
     path_in_img = "resources/person_002_db1_R3.tif"
     proie = PROIE()
     proie.extract_roi(path_in_img, rotate_90_clockwise_n_times=2, mode=Mode.DORSAL_RIGHT)
     proie.show_result()
 
 
+def example_4():
+    path_in_img = "resources/person_004_db1_R2.tif"   # raises error
+    proie = PROIE()
+    proie.extract_roi(path_in_img, rotate_90_clockwise_n_times=2, mode=Mode.DORSAL_RIGHT)
+    proie.show_result()
+
+
 if __name__ == '__main__':
-    example_1()
-    example_2()
-    example_3()
+    example(path=os.path.join("resources", "palmprint.jpg"), n=1, mode=Mode.VENTRAL)
+    example(path=os.path.join("resources", "sample.tif"), n=2, mode=Mode.VENTRAL)
+    example(path=os.path.join("resources", "person_002_db1_R3.tif"), n=2, mode=Mode.VENTRAL)
+    example(path=os.path.join("resources", "person_004_db1_R2.tif"), n=2, mode=Mode.VENTRAL)
